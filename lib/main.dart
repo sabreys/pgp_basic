@@ -42,10 +42,11 @@ class _MyHomePageState extends State<MyHomePage> {
   String description = '';
   String key1 = "Paste Your key or generate one.";
   String key2 = "Paste Your key or generate one.";
+  String pass="pass";
 
   TextEditingController controller1 = TextEditingController();
   TextEditingController controller2 = TextEditingController();
-
+  TextEditingController controller3 = TextEditingController();
   @override
   void dispose() {
     controller1.dispose();
@@ -58,14 +59,15 @@ class _MyHomePageState extends State<MyHomePage> {
     return MaterialApp(
       home: Theme(
         data: ThemeData(
-          primaryColor: const Color(0xFF2B3409),
+          primaryColor: Colors.black54,
           accentColor: const Color(0xFF71881B),
-          cardColor: const Color(0xFFF7FBEA),
+          cardColor: Colors.black26,
+
           textTheme: const TextTheme(bodyText2: TextStyle(fontSize: 20)),
         ),
         child: Scaffold(
           appBar: AppBar(
-            title: const Text('PGP DIARY TEST AREA'),
+            title: const Text('PGP BASIC'),
           ),
           body: SafeArea(
             child: Padding(
@@ -81,58 +83,55 @@ class _MyHomePageState extends State<MyHomePage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Container(
-                              height: 200,
-                              width: MediaQuery.of(context).size.width / 2 - 50,
-                              child: Scrollbar(
-                                child: SingleChildScrollView(
-                                  child: TextField(
-                                    controller: controller1,
-                                    keyboardType: TextInputType.multiline,
-                                    maxLines: null,
-                                  ),
-                                ),
-                              ),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.green,
-                                    width: 8,
-                                  )),
-                            ),
-                            Container(
-                              height: 200,
-                              width: MediaQuery.of(context).size.width / 2 - 50,
-                              child: Scrollbar(
-                                child: SingleChildScrollView(
-                                  child: TextField(
-                                    controller: controller2,
-                                    keyboardType: TextInputType.multiline,
-                                    maxLines: null,
-                                  ),
-                                ),
-                              ),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.green,
-                                    width: 8,
-                                  )),
-                            ),
+                            buildCard1(context),
+                            buildCard2(context),
                           ],
                         ),
+
+
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(30, 8, 30, 8),
+                  child: Scrollbar(
+                    child: SingleChildScrollView(
+                      child: TextField(
+                        onChanged: (String metin){
+                          setState(() {
+                            pass=metin;
+                          });
+
+                        },
+                        controller: controller3,
+                        keyboardType: TextInputType.multiline,
+                        maxLines: null,
+                        decoration:  InputDecoration(
+                          hintText: "PassPhrase",
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+
 
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: FlatButton(
                               onPressed: () async {
-                                print("sa");
+                                showToast(
+                                  'Creating key... ',
+                                  position: ToastPosition.bottom,
+                                  backgroundColor: Colors.deepOrange,
+                                  radius: 13.0,
+                                  textStyle: TextStyle(fontSize: 18.0, color: Colors.white),
+                                  animationBuilder: Miui10AnimBuilder(),
+                                );
+                                print(pass);
                                 var keyOptions = KeyOptions()..rsaBits = 1024;
                                 var keyPair = await OpenPGP.generate(
                                     options: Options()
                                       ..name = 'test'
                                       ..email = 'test@test.com'
-                                      ..passphrase = "sifre"
+                                      ..passphrase = pass
                                       ..keyOptions = keyOptions);
 
 
@@ -153,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         MarkdownTextInput(
                           (String value) =>  description = value,
                           description,
-                          label: 'Description',
+                          label: 'Message',
                           maxLines: 3,
                         ),
                      /*   Padding(
@@ -197,7 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             }
 
                             var result = await OpenPGP.decrypt(description,
-                                widget.keypair.privateKey, "sifre");
+                                widget.keypair.privateKey, pass);
                             setState(() {
                               description = result;
                             });
@@ -216,11 +215,67 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Card buildCard2(BuildContext context) {
+    return Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            child: Container(
+                              height: 200,
+                              width: MediaQuery.of(context).size.width / 2 - 50,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Scrollbar(
+                                  child: SingleChildScrollView(
+                                    child: TextField(
+                                      controller: controller2,
+                                     decoration:  InputDecoration(
+                                       hintText: "Private Key",
+                                     ),
+                                      keyboardType: TextInputType.multiline,
+                                      maxLines: null,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                            ),
+                          );
+  }
+
+  Card buildCard1(BuildContext context) {
+    return Card(
+                  shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+          )
+                            ,child: Container(
+                              height: 200,
+                              width: MediaQuery.of(context).size.width / 2 - 50,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Scrollbar(
+                                  child: SingleChildScrollView(
+                                    child: TextField(
+                                      controller: controller1,
+                                      keyboardType: TextInputType.multiline,
+                                      maxLines: null,
+                                      decoration:  InputDecoration(
+                                        hintText: "Public Key",
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                            ),
+                          );
+  }
+
   void null_key_toast() {
     showToast(
       'You need to have a key. please generate and save one ',
       position: ToastPosition.bottom,
-      backgroundColor: Color(0xFFEE507A),
+      backgroundColor: Colors.blue,
       radius: 13.0,
       textStyle: TextStyle(fontSize: 18.0, color: Colors.white),
       animationBuilder: Miui10AnimBuilder(),
